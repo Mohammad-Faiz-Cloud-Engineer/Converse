@@ -287,7 +287,7 @@ def process_query(query: str, config: Config) -> None:
     # Step 8: Execute
     print()
     print_success(f"Executing: {response.command}")
-    console.print("─" * 60)
+    console.print("-" * 60, highlight=False)
 
     try:
         result = run_command(response.command)
@@ -299,11 +299,51 @@ def process_query(query: str, config: Config) -> None:
         console.print(result.stdout)
     if result.stderr:
         console.print(f"[red]{result.stderr}[/]")
-    console.print("─" * 60)
+    console.print("-" * 60, highlight=False)
     if result.returncode == 0:
         print_success(f"Completed (exit code: {result.returncode})")
     else:
         print_error(f"Failed (exit code: {result.returncode})")
+
+
+def raw_exec_mode() -> None:
+    """Raw shell execution REPL — every input is executed directly."""
+    console.print(
+        Panel(
+            "Type shell commands or 'exit' / 'quit' to leave.\n"
+            "The leading ! is optional — every line runs directly.",
+            title="[bold]Raw Shell Mode[/]",
+            border_style="yellow",
+            box=box.DOUBLE,
+        )
+    )
+    while True:
+        try:
+            cmd = input("\n$ ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            print_info("Exiting raw mode.")
+            break
+        if not cmd:
+            continue
+        if cmd.lower() in ("exit", "quit"):
+            print_info("Exiting raw mode.")
+            break
+        if cmd.startswith("!"):
+            cmd = cmd[1:].strip()
+            if not cmd:
+                continue
+        print_success(f"Executing: {cmd}")
+        console.print("-" * 60, highlight=False)
+        try:
+            result = run_command(cmd)
+            if result.stdout:
+                console.print(result.stdout)
+            if result.stderr:
+                console.print(f"[red]{result.stderr}[/]")
+        except Exception as e:
+            print_error(f"Execution failed: {e}")
+        console.print("-" * 60, highlight=False)
 
 
 def interactive_mode(config: Config) -> None:
@@ -350,7 +390,7 @@ def interactive_mode(config: Config) -> None:
             raw_cmd = query[1:].strip()
             if raw_cmd:
                 print_success(f"Executing raw: {raw_cmd}")
-                console.print("─" * 60)
+                console.print("-" * 60, highlight=False)
                 try:
                     result = run_command(raw_cmd)
                     if result.stdout:
@@ -359,7 +399,7 @@ def interactive_mode(config: Config) -> None:
                         console.print(f"[red]{result.stderr}[/]")
                 except Exception as e:
                     print_error(f"Execution failed: {e}")
-                console.print("─" * 60)
+                console.print("-" * 60, highlight=False)
             continue
 
         process_query(query, config)
@@ -384,6 +424,7 @@ Examples:
   converse -m llama3 -u http://localhost:11434/v1 "list running processes"
   converse -x "ls -la"
   converse -x "docker ps"
+  converse -x                   # enter raw shell REPL
   echo "restart my computer" | converse -n
 
 Configuration file (searched in order, per-directory yaml before json):
@@ -410,7 +451,8 @@ Environment variables:
     parser.add_argument("--no-stream", action="store_true", help="Disable streaming output")
     parser.add_argument("-i", "--interactive", action="store_true", help="Force interactive mode")
     parser.add_argument("--setup", action="store_true", help="Run the interactive setup wizard")
-    parser.add_argument("-x", "--exec", dest="exec_command", help="Execute a raw shell command directly (bypasses LLM)")
+    parser.add_argument("-x", "--exec", dest="exec_command", nargs="?", const="", default=None,
+        help="Execute a raw shell command directly (bypasses LLM). Without a command, enters raw shell REPL.")
     parser.add_argument("--version", action="store_true", help="Show version and exit")
 
     args = parser.parse_args()
@@ -433,9 +475,12 @@ Environment variables:
 
     is_interactive = args.interactive or (not args.query and sys.stdin.isatty())
 
-    if args.exec_command:
+    if args.exec_command is not None:
+        if args.exec_command == "":
+            raw_exec_mode()
+            return
         print_success(f"Executing: {args.exec_command}")
-        console.print("─" * 60)
+        console.print("-" * 60, highlight=False)
         try:
             result = run_command(args.exec_command)
             if result.stdout:
@@ -444,7 +489,7 @@ Environment variables:
                 console.print(f"[red]{result.stderr}[/]")
         except Exception as e:
             print_error(f"Execution failed: {e}")
-        console.print("─" * 60)
+        console.print("-" * 60, highlight=False)
         return
 
     if is_interactive:
