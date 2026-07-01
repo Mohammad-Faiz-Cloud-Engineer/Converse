@@ -1,152 +1,199 @@
-# converse
+# Converse
 
 <p align="center">
-  <a href="https://github.com/Akshay-Cloud-Engineer/converse/actions/workflows/ci.yml"><img src="https://github.com/Akshay-Cloud-Engineer/converse/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="#"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue" alt="Python"></a>
-  <a href="#"><img src="https://img.shields.io/badge/tests-152-brightgreen" alt="Tests"></a>
-  <br>
-  <img src="https://img.shields.io/badge/dependencies-2-orange" alt="Dependencies">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--2--Clause-blue" alt="License"></a>
+  <a href="https://github.com/Mohammad-Faiz-Cloud-Engineer/Converse/actions"><img src="https://img.shields.io/github/actions/workflow/status/Mohammad-Faiz-Cloud-Engineer/Converse/ci.yml?branch=main&label=CI" alt="CI"></a>
+  <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue" alt="Python">
+  <img src="https://img.shields.io/badge/tests-152-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/lines%20of%20code-1569-brightgreen" alt="Lines of Code">
 </p>
 
-> **Natural Language Shell**
-
-converse turns plain English into shell commands. Tell it what you want and it figures out the rest.
+Tell converse what you want in plain English and it figures out the shell command, shows you what it's going to run, and executes it.
 
 ```bash
-python3 -m converse "show me all files including hidden ones"
-python3 -m converse "create a folder named project and move everything there"
-python3 -m converse "find all Python files that were changed in the last week"
+converse "show me all files including hidden ones"
+converse "find all Python files modified in the last week"
+converse "create a folder named project and move everything there"
 ```
 
-It works with local LLMs running on your machine through Ollama or LM Studio, and with any OpenAI compatible API. Commands stream back as they are generated so you see the translation happening in real time.
+Works with local LLMs (Ollama, LM Studio) or any OpenAI-compatible API. Commands stream back in real time so you can see the translation as the model generates it.
 
 ## How it works
 
-You write a sentence. converse sends it to a language model along with your current directory and operating system. The model returns a structured JSON response containing the exact shell command to run, an explanation of what it does, and a risk assessment. converse checks this assessment against its own local safety rules, asks for confirmation on dangerous operations, and then executes the command.
-
-This means you get the flexibility of natural language with the guardrails of a safety first design.
+You type a sentence. converse sends it to the language model along with your current directory and operating system, so the model has context for paths and platform-specific commands. The model replies with structured JSON containing the shell command, an explanation, and a risk level. converse runs its own safety checks on top — pattern matching catches destructive operations even if the model underestimates the risk. If everything looks good and you confirm (when needed), it runs the command.
 
 ## Features
 
-- Supports Ollama, LM Studio, and any OpenAI compatible endpoint
-- Setup wizard with interactive provider selection
-- Streaming responses show you the translation as it happens
-- Automatic risk detection flags destructive commands like reboots, file deletions, or system changes
-- Confirmation prompts stop you from accidentally running high risk operations
-- Local pattern matching acts as a backup safety net even if the model gets the risk level wrong
-- Context awareness sends your current directory and OS so the model resolves paths correctly
-- Interactive REPL mode with command history for chaining multiple queries
-- Dry run mode lets you preview the command before execution
-- Configuration through YAML files, JSON files, environment variables, or CLI flags
-- Raw shell passthrough in interactive mode with the `!` prefix
+- **Multiple providers** — Ollama, LM Studio, OpenAI, or any custom endpoint
+- **Streaming** — see the command being built character by character
+- **Two-layer safety** — LLM risk assessment + local pattern matching; the stricter wins
+- **Confirmation prompts** — high-risk commands ask before executing
+- **Risk levels** — Low, Medium, High, Critical with configurable thresholds
+- **Blocked commands** — blacklist specific commands so they can never run
+- **Dry-run mode** — preview without executing (`--dry-run` / `-n`)
+- **Interactive REPL** — keep asking without restarting (`converse` with no query)
+- **Raw shell passthrough** — `!command` in the REPL skips the LLM entirely
+- **Configurable** — YAML, JSON, environment variables, or CLI flags
+- **Setup wizard** — interactive configuration on first run or with `--setup`
+- **Cross-platform** — Windows, Linux, macOS
 
-## Quick start
+## Installation
 
-### Install
+### Option 1: pip install (global)
 
-Requires **Python 3.10+** and **pip**.
+Install directly from GitHub (no clone needed):
 
 ```bash
-git clone https://github.com/Akshay-Cloud-Engineer/converse.git
-cd converse
+pip install git+https://github.com/Mohammad-Faiz-Cloud-Engineer/Converse.git
+```
+
+After this, `converse` should be on your PATH. If it isn't, use the module form:
+
+```bash
+# Windows
+python -m converse "query"
+
+# Linux / macOS
+python3 -m converse "query"
+```
+
+### Option 2: pip install (local / editable)
+
+Clone the repo and install for development:
+
+```bash
+git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Converse.git
+cd Converse
 pip install -e .
 ```
 
-> **Note:** This project is not published on PyPI. You install it directly from the repository with `pip install -e .` (editable mode). After installation, you run it using `python3 -m converse` (Linux / macOS) or `python -m converse` (Windows). If your Python environment's scripts directory is on your PATH, you can also use the `converse` shortcut command.
+Editable mode (`-e`) means changes to the source code take effect immediately without reinstalling. Use this if you plan to modify the code.
 
-### Setup (first run)
+### Option 3: git clone without pip
 
-Run the setup wizard to configure your LLM provider:
+Clone and run directly through `python -m`:
 
 ```bash
+git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Converse.git
+cd Converse
+```
+
+Then install the dependencies and use the module form:
+
+**Windows (PowerShell / cmd):**
+```bash
+pip install httpx rich
+python -m converse "list all files"
+python -m converse --setup
+```
+
+**Linux / macOS:**
+```bash
+pip3 install httpx rich
+python3 -m converse "list all files"
 python3 -m converse --setup
 ```
 
-Use the arrow keys to select your provider, enter the details, and the configuration is saved. The wizard automatically starts on first run if no configuration is found.
+### Optional dependencies
 
-### Run an LLM
+```bash
+# YAML config support (without it, only JSON configs are loaded)
+pip install pyyaml
 
-You need a running LLM server. The easiest way is with Ollama:
+# Development (tests)
+pip install pytest
+```
+
+## Quick start
+
+### 1. Get an LLM running
+
+The easiest way is with Ollama:
 
 ```bash
 ollama pull llama3.2
 ollama serve
 ```
 
-Or point it at any OpenAI compatible API:
+Or use any OpenAI-compatible provider — LM Studio, OpenAI, or a custom endpoint.
+
+### 2. Run the setup wizard
 
 ```bash
-python3 -m converse "list all running processes" --url https://api.openai.com/v1 --model gpt-4o --api-key $OPENAI_API_KEY
+converse --setup
 ```
 
-### Use it
-
-Single command mode:
+If `converse` isn't on PATH:
 
 ```bash
-python3 -m converse "create a folder named test"
-```
+# Windows
+python -m converse --setup
 
-Interactive mode:
-
-```bash
-python3 -m converse
-```
-
-Dry run to preview without executing:
-
-```bash
-python3 -m converse "delete everything in downloads" --dry-run
-```
-
-Re-run the setup wizard anytime:
-
-```bash
+# Linux / macOS
 python3 -m converse --setup
 ```
 
----
+The wizard walks you through provider selection, API details, and safety preferences, then saves the config to `~/.config/converse/config.json`.
 
-### Windows
+The setup also runs automatically the first time if no configuration file is found.
 
-On Windows, replace `python3` with `python`:
+### 3. Use it
 
-```powershell
-python -m converse "show me all files"
-python -m converse --setup
-python -m converse --interactive
+Single command:
+
+```bash
+converse "show me disk usage"
+converse "find all large files over 100MB"
+```
+
+Interactive REPL (type multiple commands in a session):
+
+```bash
+converse
+```
+
+Without arguments, converse drops into interactive mode. Type natural language queries, `!raw_command` to run shell commands directly, or `exit` / `quit` to leave.
+
+Dry run — see what would run without actually executing:
+
+```bash
+converse "delete temporary files" --dry-run
 ```
 
 ---
 
 ## Safety
 
-Safety is built into the core of converse. Every command goes through two layers of risk assessment. The LLM classifies the risk in its response, and converse also runs its own pattern matching on the command itself. The more conservative result wins.
+Every command passes through two layers of risk assessment:
 
-Commands are categorized into four risk levels.
+1. **LLM assessment** — the model classifies risk as Low, Medium, High, or Critical
+2. **Local pattern matching** — converse scans the command for dangerous patterns and can override the model's assessment to a higher level
 
-**Low** Includes things like ls, pwd, echo, cat, grep, and other read only operations. These run automatically without prompting.
+The stricter assessment wins.
 
-**Medium** Includes mkdir, touch, cp, mv, curl, and other non destructive operations. The command is shown but no confirmation is needed.
+**Low** — `ls`, `pwd`, `echo`, `cat`, `grep`, `find`, `df`, `ps`, `git status`, read-only operations. No confirmation needed.
 
-**High** Includes rm, kill, chmod, chown, git reset hard, and other operations that modify or destroy data. Confirmation is required.
+**Medium** — `mkdir`, `touch`, `cp`, `mv`, `curl`, `wget`, `pip install`, package updates, non-destructive operations. Shown without confirmation.
 
-**Critical** Includes reboot, shutdown, dd, mkfs, apt remove, and other system altering commands. Confirmation is required and the warning is styled prominently.
+**High** — `rm`, `rm -rf`, `kill`, `chmod`, `chown`, `git reset --hard`, `git push --force`, operations that modify or destroy data. Confirmation required by default.
 
-You can adjust which risk levels require confirmation in your configuration file, or bypass all prompts with the `--yes` flag (use this carefully).
+**Critical** — `reboot`, `shutdown`, `dd`, `mkfs`, `fdisk`, `apt remove`, system-altering commands. Confirmation required, warning styled prominently.
+
+You can configure which levels prompt for confirmation through `require_confirmation` in your config file. Use `--yes` to skip all prompts (careful with this one).
+
+---
 
 ## Configuration
 
-converse looks for configuration files in this order:
+converse looks for config files in this order:
 
-1. `./converse.yaml` or `./converse.json` (current directory)
+1. `./converse.yaml` or `./converse.json` (project directory)
 2. `~/.config/converse/config.yaml` or `~/.config/converse/config.json`
 3. `~/.converse.yaml` or `~/.converse.json`
 
 The setup wizard saves to `~/.config/converse/config.json`.
 
-Example YAML:
+### Example config
 
 ```yaml
 llm:
@@ -164,41 +211,84 @@ safety:
   blocked_commands: []
 ```
 
-Environment variables override file settings. They use the `CONVERSE_` prefix. For example:
+### Environment variables
+
+Environment variables override file settings. They take the `CONVERSE_` prefix:
 
 ```bash
 export CONVERSE_MODEL=gpt-4o
 export CONVERSE_BASE_URL=https://api.openai.com/v1
 export CONVERSE_API_KEY=sk-...
+export CONVERSE_TIMEOUT=60
+export CONVERSE_BLOCKED="rm,reboot,shutdown"
 ```
 
-CLI flags take priority over everything:
+### CLI flags
+
+CLI flags override everything — config file and environment variables both:
 
 ```bash
-python3 -m converse "list running services" -m llama3.2 -u http://localhost:11434/v1 -p ollama
+converse "list running services" -m llama3.2 -u http://localhost:11434/v1 -p ollama -n
 ```
+
+Full flag reference:
+
+| Flag | Description |
+|------|-------------|
+| `-m`, `--model` | Model name (default: `llama3`) |
+| `-u`, `--url` | API base URL |
+| `-p`, `--provider` | Provider: `ollama`, `lmstudio`, `openai`, `custom` |
+| `-k`, `--api-key` | API key |
+| `-t`, `--temperature` | Temperature (default: `0.1`) |
+| `--max-tokens` | Max response tokens (default: `500`) |
+| `--timeout` | Request timeout in seconds (default: `30`) |
+| `-n`, `--dry-run` | Preview without executing |
+| `-y`, `--yes` | Auto-confirm all prompts |
+| `--no-stream` | Disable streaming output |
+| `-i`, `--interactive` | Force interactive mode |
+| `-c`, `--config` | Path to config file |
+| `--setup` | Run the setup wizard |
+| `--version` | Show version and exit |
+
+---
 
 ## Interactive mode tips
 
-Run `python3 -m converse` with no arguments to enter the REPL.
+Run `converse` with no arguments to enter the REPL.
 
-Special commands inside the REPL:
-
-- Type any natural language sentence to translate and execute it
-- Use `!command` to run a raw shell command directly, bypassing the LLM
-- Type `exit`, `quit`, or `q` to leave
+- Type a sentence to translate and execute
+- `!command` runs a raw shell command directly, bypassing the LLM
+- `exit`, `quit`, or `q` to leave
 - Ctrl+D or Ctrl+C also exit
 
 Command history is saved to `~/.converse_history` and persists across sessions.
 
+---
+
 ## Supported providers
 
-| Provider | base_url | Notes |
-| -------- | -------- | ----- |
+| Provider | Default base URL | Notes |
+|----------|-----------------|-------|
 | Ollama | `http://localhost:11434/v1` | Default. Run `ollama serve` first. |
 | LM Studio | `http://localhost:1234/v1` | Enable the local API server in settings. |
 | OpenAI | `https://api.openai.com/v1` | Requires an API key. |
-| Custom | Any OpenAI compatible endpoint | Works with any server that follows the OpenAI chat completions format. |
+| Custom | user-defined | Any OpenAI-compatible endpoint. |
+
+---
+
+## Platform notes
+
+| | Windows | Linux / macOS |
+|--|---------|---------------|
+| **Run** | `python -m converse "query"` | `python3 -m converse "query"` |
+| **Run (installed)** | `converse "query"` | `converse "query"` |
+| **Setup** | `python -m converse --setup` | `python3 -m converse --setup` |
+| **Interactive** | `python -m converse` | `python3 -m converse` |
+| **Install deps** | `pip install httpx rich` | `pip3 install httpx rich` |
+
+After `pip install` (global or editable), the `converse` command is registered system-wide. On Windows, this requires the Python Scripts directory (`%APPDATA%\Python\Scripts` or equivalent) to be on your PATH, which the Python installer adds by default. On Linux/macOS, it goes into your environment's `bin` directory which is typically already on PATH.
+
+---
 
 ## Project structure
 
@@ -208,11 +298,15 @@ converse/
   setup_wizard.py   Interactive setup wizard with arrow-key provider selection
   models.py         Data structures for config, risk levels, and LLM responses
   prompt.py         System prompt that instructs the LLM to output JSON
-  llm.py            HTTP client for streaming and non streaming LLM API calls
-  translator.py     Builds context aware messages and parses LLM JSON responses
-  executor.py       Pattern based risk detection and subprocess execution
+  llm.py            HTTP client for streaming and non-streaming LLM API calls
+  translator.py     Builds context-aware messages and parses LLM JSON responses
+  executor.py       Pattern-based risk detection and subprocess execution
+  __init__.py       Package init with version
+  __main__.py       Entry point for `python -m converse`
 ```
+
+---
 
 ## License
 
-BSD 2-Clause
+BSD 2-Clause. See [LICENSE](LICENSE).
