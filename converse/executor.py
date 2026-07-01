@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 from typing import Optional
@@ -119,6 +120,9 @@ def check_blocked(command: str, blocked_list: list[str]) -> Optional[str]:
 
 def run_command(command: str) -> subprocess.CompletedProcess:
     """Execute a shell command and return the result."""
+    if command.strip().lower() in ("cls", "clear"):
+        os.system("cls" if os.name == "nt" else "clear")
+        return subprocess.CompletedProcess(command, 0, "", "")
     return subprocess.run(
         command,
         shell=True,

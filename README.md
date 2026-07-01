@@ -34,8 +34,9 @@ You type a sentence. converse sends it to the language model along with your cur
 - **Dry-run mode** - preview without executing (`--dry-run` / `-n`)
 - **Interactive REPL** - keep asking without restarting (`converse` with no query)
 - **Raw shell passthrough** - `!command` in the REPL skips the LLM entirely
+- **Direct execution** - `--exec` / `-x` runs a raw command directly from the CLI, no LLM involved
 - **Configurable** - YAML, JSON, environment variables, or CLI flags
-- **Setup wizard** - interactive configuration on first run or with `--setup`
+- **Setup wizard** - guided configuration with `--setup` (never auto-runs)
 - **Cross-platform** - Windows, Linux, macOS
 
 ## Installation
@@ -95,6 +96,24 @@ python3 -m converse "list all files"
 python3 -m converse --setup
 ```
 
+### Option 4: Manual dependency install
+
+If you cloned the repo and want to run `python -m converse` without a full pip install, just install the runtime dependencies directly:
+
+```bash
+pip install rich httpx
+```
+
+Now run via the module form:
+
+```bash
+# Windows
+python -m converse "query"
+
+# Linux / macOS
+python3 -m converse "query"
+```
+
 ### Optional dependencies
 
 ```bash
@@ -136,7 +155,7 @@ python3 -m converse --setup
 
 The wizard walks you through provider selection, API details, and safety preferences, then saves the config to `~/.config/converse/config.json`.
 
-The setup also runs automatically the first time if no configuration file is found.
+The setup wizard only runs when invoked with `--setup`. It never runs automatically.
 
 ### 3. Use it
 
@@ -159,6 +178,14 @@ Dry run: see what would run without actually executing:
 
 ```bash
 converse "delete temporary files" --dry-run
+```
+
+Direct execution (bypass the LLM entirely):
+
+```bash
+converse -x "ls -la"
+converse -x "docker ps"
+converse -x "cat /etc/os-release"
 ```
 
 ---
@@ -243,6 +270,7 @@ Full flag reference:
 | `-t`, `--temperature` | Temperature (default: `0.1`) |
 | `--max-tokens` | Max response tokens (default: `500`) |
 | `--timeout` | Request timeout in seconds (default: `30`) |
+| `-x`, `--exec` | Execute a raw shell command directly, bypassing the LLM |
 | `-n`, `--dry-run` | Preview without executing |
 | `-y`, `--yes` | Auto-confirm all prompts |
 | `--no-stream` | Disable streaming output |
@@ -259,6 +287,7 @@ Run `converse` with no arguments to enter the REPL.
 
 - Type a sentence to translate and execute
 - `!command` runs a raw shell command directly, bypassing the LLM
+- Outside the REPL, use `-x "command"` for the same effect
 - `exit`, `quit`, or `q` to leave
 - Ctrl+D or Ctrl+C also exit
 
