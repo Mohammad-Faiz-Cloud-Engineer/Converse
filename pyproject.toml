@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "converse"
-version = "0.1.0"
+version = "0.1.3"
 description = "Natural language shell. Turn plain English into shell commands."
 readme = "README.md"
 license = { text = "BSD-2-Clause" }

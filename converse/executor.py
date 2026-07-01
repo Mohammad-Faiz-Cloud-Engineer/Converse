@@ -120,8 +120,12 @@ def check_blocked(command: str, blocked_list: list[str]) -> Optional[str]:
 
 def run_command(command: str) -> subprocess.CompletedProcess:
     """Execute a shell command and return the result."""
-    if command.strip().lower() in ("cls", "clear"):
-        os.system("cls" if os.name == "nt" else "clear")
+    cmd_lower = command.strip().lower()
+    if cmd_lower == "cls" and os.name == "nt":
+        os.system("cls")
+        return subprocess.CompletedProcess(command, 0, "", "")
+    if cmd_lower == "clear" and os.name != "nt":
+        os.system("clear")
         return subprocess.CompletedProcess(command, 0, "", "")
     return subprocess.run(
         command,

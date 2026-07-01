@@ -21,6 +21,14 @@ from .executor import determine_risk_level, check_blocked, run_command
 
 console = Console()
 
+_RISK_COLORS: dict[str, str] = {
+    "low": "green",
+    "medium": "yellow",
+    "high": "red",
+    "critical": "bold red",
+}
+
+
 CONFIG_SEARCH_PATHS = [
     Path.cwd() / "converse.yaml",
     Path.cwd() / "converse.json",
@@ -48,12 +56,7 @@ def print_error(msg: str) -> None:
 
 
 def print_risk_banner(command: str, explanation: str, risk: str) -> None:
-    color = {
-        "low": "green",
-        "medium": "yellow",
-        "high": "red",
-        "critical": "bold red",
-    }.get(risk, "white")
+    color = _RISK_COLORS.get(risk, "white")
 
     panel = Panel(
         f"[{color}]{explanation}[/]\n\n"
@@ -67,12 +70,7 @@ def print_risk_banner(command: str, explanation: str, risk: str) -> None:
 
 
 def print_result(response: LLMResponse) -> None:
-    color = {
-        "low": "green",
-        "medium": "yellow",
-        "high": "red",
-        "critical": "bold red",
-    }.get(response.risk_level.value, "white")
+    color = _RISK_COLORS.get(response.risk_level.value, "white")
 
     panel = Panel(
         f"Command:  [bold white]{response.command}[/]\n"
@@ -139,7 +137,11 @@ def load_config(args: argparse.Namespace) -> Config:
                         config.safety.blocked_commands = list(safety_data["blocked_commands"])
 
                     if "auto_confirm" in data:
-                        config.auto_confirm = bool(data["auto_confirm"])
+                        raw = data["auto_confirm"]
+                        if isinstance(raw, str):
+                            config.auto_confirm = raw.lower() in ("true", "1", "yes", "y")
+                        else:
+                            config.auto_confirm = bool(raw)
 
                 print_info(f"Loaded config from {cp}")
                 break
@@ -248,8 +250,7 @@ def process_query(query: str, config: Config) -> None:
     if risk_priority.get(local_risk, 0) > risk_priority.get(response.risk_level, 0):
         response.risk_level = local_risk
 
-    if response.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL):
-        response.requires_confirmation = True
+    response.requires_confirmation = response.risk_level in config.safety.require_confirmation
 
     # Step 5: Check blocked commands
     blocked = check_blocked(response.command, config.safety.blocked_commands)
@@ -265,7 +266,7 @@ def process_query(query: str, config: Config) -> None:
         return
 
     # Step 7: Confirmation
-    needs_confirm = response.risk_level in config.safety.require_confirmation
+    needs_confirm = response.requires_confirmation
 
     if needs_confirm and config.auto_confirm:
         print_warning("Auto-confirm enabled. Executing without confirmation prompt.")
@@ -287,7 +288,7 @@ def process_query(query: str, config: Config) -> None:
     # Step 8: Execute
     print()
     print_success(f"Executing: {response.command}")
-    console.print("─" * 60)
+    console.print("-" * 60, highlight=False)
 
     try:
         result = run_command(response.command)
@@ -299,11 +300,51 @@ def process_query(query: str, config: Config) -> None:
         console.print(result.stdout)
     if result.stderr:
         console.print(f"[red]{result.stderr}[/]")
-    console.print("─" * 60)
+    console.print("-" * 60, highlight=False)
     if result.returncode == 0:
         print_success(f"Completed (exit code: {result.returncode})")
     else:
         print_error(f"Failed (exit code: {result.returncode})")
+
+
+def raw_exec_mode() -> None:
+    """Raw shell execution REPL — every input is executed directly."""
+    console.print(
+        Panel(
+            "Type shell commands or 'exit' / 'quit' to leave.\n"
+            "The leading ! is optional — every line runs directly.",
+            title="[bold]Raw Shell Mode[/]",
+            border_style="yellow",
+            box=box.DOUBLE,
+        )
+    )
+    while True:
+        try:
+            cmd = input("\n$ ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            print_info("Exiting raw mode.")
+            break
+        if not cmd:
+            continue
+        if cmd.lower() in ("exit", "quit"):
+            print_info("Exiting raw mode.")
+            break
+        if cmd.startswith("!"):
+            cmd = cmd[1:].strip()
+            if not cmd:
+                continue
+        print_success(f"Executing: {cmd}")
+        console.print("-" * 60, highlight=False)
+        try:
+            result = run_command(cmd)
+            if result.stdout:
+                console.print(result.stdout)
+            if result.stderr:
+                console.print(f"[red]{result.stderr}[/]")
+        except Exception as e:
+            print_error(f"Execution failed: {e}")
+        console.print("-" * 60, highlight=False)
 
 
 def interactive_mode(config: Config) -> None:
@@ -350,7 +391,7 @@ def interactive_mode(config: Config) -> None:
             raw_cmd = query[1:].strip()
             if raw_cmd:
                 print_success(f"Executing raw: {raw_cmd}")
-                console.print("─" * 60)
+                console.print("-" * 60, highlight=False)
                 try:
                     result = run_command(raw_cmd)
                     if result.stdout:
@@ -359,7 +400,7 @@ def interactive_mode(config: Config) -> None:
                         console.print(f"[red]{result.stderr}[/]")
                 except Exception as e:
                     print_error(f"Execution failed: {e}")
-                console.print("─" * 60)
+                console.print("-" * 60, highlight=False)
             continue
 
         process_query(query, config)
@@ -384,11 +425,13 @@ Examples:
   converse -m llama3 -u http://localhost:11434/v1 "list running processes"
   converse -x "ls -la"
   converse -x "docker ps"
+  converse -x                   # enter raw shell REPL
   echo "restart my computer" | converse -n
 
-Configuration file (searched in order):
-  ./converse.yaml, ~/.config/converse/config.yaml, ~/.converse.yaml
-  Same paths with .json extension.
+Configuration file (searched in order, per-directory yaml before json):
+  ./converse.yaml, ./converse.json
+  ~/.config/converse/config.yaml, ~/.config/converse/config.json
+  ~/.converse.yaml, ~/.converse.json
 
 Environment variables:
     CONVERSE_MODEL, CONVERSE_BASE_URL, CONVERSE_API_KEY, CONVERSE_PROVIDER,
@@ -409,12 +452,18 @@ Environment variables:
     parser.add_argument("--no-stream", action="store_true", help="Disable streaming output")
     parser.add_argument("-i", "--interactive", action="store_true", help="Force interactive mode")
     parser.add_argument("--setup", action="store_true", help="Run the interactive setup wizard")
-    parser.add_argument("-x", "--exec", dest="exec_command", help="Execute a raw shell command directly (bypasses LLM)")
-    parser.add_argument("--version", action="store_true", help="Show version and exit")
+    parser.add_argument("-x", "--exec", dest="exec_command", nargs="?", const="", default=None,
+        help="Execute a raw shell command directly (bypasses LLM). Without a command, enters raw shell REPL.")
+    parser.add_argument("--version", "-V", action="store_true", help="Show version and exit")
 
     args = parser.parse_args()
 
     if args.version:
+        from . import __version__
+        print(f"converse v{__version__}")
+        return
+
+    if args.query and args.query[0] == "version":
         from . import __version__
         print(f"converse v{__version__}")
         return
@@ -432,9 +481,12 @@ Environment variables:
 
     is_interactive = args.interactive or (not args.query and sys.stdin.isatty())
 
-    if args.exec_command:
+    if args.exec_command is not None:
+        if args.exec_command == "":
+            raw_exec_mode()
+            return
         print_success(f"Executing: {args.exec_command}")
-        console.print("─" * 60)
+        console.print("-" * 60, highlight=False)
         try:
             result = run_command(args.exec_command)
             if result.stdout:
@@ -443,7 +495,7 @@ Environment variables:
                 console.print(f"[red]{result.stderr}[/]")
         except Exception as e:
             print_error(f"Execution failed: {e}")
-        console.print("─" * 60)
+        console.print("-" * 60, highlight=False)
         return
 
     if is_interactive:

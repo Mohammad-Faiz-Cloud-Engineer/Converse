@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 from argparse import Namespace
 
 import pytest

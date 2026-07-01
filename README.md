@@ -1,12 +1,12 @@
 # Converse
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.1.3-blue" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--2--Clause-blue" alt="License"></a>
   <a href="https://github.com/Akshay-Cloud-Engineer/converse/actions"><img src="https://img.shields.io/github/actions/workflow/status/Akshay-Cloud-Engineer/converse/ci.yml?branch=main&label=CI" alt="CI"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue" alt="Python">
-  <img src="https://img.shields.io/badge/tests-152-brightgreen" alt="Tests">
-  <img src="https://img.shields.io/badge/lines%20of%20code-1569-brightgreen" alt="Lines of Code">
+  <img src="https://img.shields.io/badge/tests-167-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/lines%20of%20code-1180-brightgreen" alt="Lines of Code">
 </p>
 
 Tell converse what you want in plain English and it figures out the shell command, shows you what it's going to run, and executes it.
@@ -34,14 +34,14 @@ You type a sentence. converse sends it to the language model along with your cur
 - **Dry-run mode** - preview without executing (`--dry-run` / `-n`)
 - **Interactive REPL** - keep asking without restarting (`converse` with no query)
 - **Raw shell passthrough** - `!command` in the REPL skips the LLM entirely
-- **Direct execution** - `--exec` / `-x` runs a raw command directly from the CLI, no LLM involved
+- **Direct execution** - `--exec` / `-x` runs a raw command directly, no LLM involved. With a command arg runs one-off; without, enters a raw shell REPL.
 - **Configurable** - YAML, JSON, environment variables, or CLI flags
 - **Setup wizard** - guided configuration with `--setup` (never auto-runs)
 - **Cross-platform** - Windows, Linux, macOS
 
 ## Installation
 
-### Option 1: pip install (global)
+### Install via pip (recommended)
 
 Install directly from GitHub (no clone needed):
 
@@ -49,19 +49,7 @@ Install directly from GitHub (no clone needed):
 pip install git+https://github.com/Akshay-Cloud-Engineer/converse.git
 ```
 
-After this, `converse` should be on your PATH. If it isn't, use the module form:
-
-```bash
-# Windows
-python -m converse "query"
-
-# Linux / macOS
-python3 -m converse "query"
-```
-
-### Option 2: pip install (local / editable)
-
-Clone the repo and install for development:
+For local development, clone and install in editable mode:
 
 ```bash
 git clone https://github.com/Akshay-Cloud-Engineer/converse.git
@@ -69,49 +57,43 @@ cd converse
 pip install -e .
 ```
 
-Editable mode (`-e`) means changes to the source code take effect immediately without reinstalling. Use this if you plan to modify the code.
+After installation, `converse` is available system-wide:
 
-### Option 3: git clone without pip
+```bash
+converse "list all files"
+converse --version
+converse --setup
+```
 
-Clone and run directly through `python -m`:
+If the `converse` command isn't on your PATH, use the module form:
+
+| Platform | Command |
+|----------|---------|
+| Windows | `python -m converse "query"` |
+| Linux / macOS | `python3 -m converse "query"` |
+
+### Run without installing
+
+Clone the repo and install only runtime dependencies:
 
 ```bash
 git clone https://github.com/Akshay-Cloud-Engineer/converse.git
 cd converse
-```
-
-Then install the dependencies and use the module form:
-
-**Windows (PowerShell / cmd):**
-```bash
-pip install httpx rich
-python -m converse "list all files"
-python -m converse --setup
-```
-
-**Linux / macOS:**
-```bash
-pip3 install httpx rich
-python3 -m converse "list all files"
-python3 -m converse --setup
-```
-
-### Option 4: Manual dependency install
-
-If you cloned the repo and want to run `python -m converse` without a full pip install, just install the runtime dependencies directly:
-
-```bash
 pip install rich httpx
 ```
 
-Now run via the module form:
+Then run via the module form:
 
 ```bash
 # Windows
-python -m converse "query"
+python -m converse "list all files"
+python -m converse --version
+python -m converse --setup
 
 # Linux / macOS
-python3 -m converse "query"
+python3 -m converse "list all files"
+python3 -m converse --version
+python3 -m converse --setup
 ```
 
 ### Optional dependencies
@@ -159,6 +141,12 @@ The setup wizard only runs when invoked with `--setup`. It never runs automatica
 
 ### 3. Use it
 
+Check your installed version:
+
+```bash
+converse --version    # or: converse -V, converse version
+```
+
 Single command:
 
 ```bash
@@ -183,10 +171,11 @@ converse "delete temporary files" --dry-run
 Direct execution (bypass the LLM entirely):
 
 ```bash
-converse -x "ls -la"
-converse -x "docker ps"
-converse -x "cat /etc/os-release"
+converse -x "ls -la"         # single command, then exit
+converse -x                  # raw shell REPL — keep typing commands
 ```
+
+In the raw REPL, the `!` prefix is optional. Every line runs directly.
 
 ---
 
@@ -270,14 +259,15 @@ Full flag reference:
 | `-t`, `--temperature` | Temperature (default: `0.1`) |
 | `--max-tokens` | Max response tokens (default: `500`) |
 | `--timeout` | Request timeout in seconds (default: `30`) |
-| `-x`, `--exec` | Execute a raw shell command directly, bypassing the LLM |
+| `-x`, `--exec` | Execute a raw shell command directly (bypasses LLM). With no argument, enters raw shell REPL. |
 | `-n`, `--dry-run` | Preview without executing |
 | `-y`, `--yes` | Auto-confirm all prompts |
 | `--no-stream` | Disable streaming output |
 | `-i`, `--interactive` | Force interactive mode |
 | `-c`, `--config` | Path to config file |
 | `--setup` | Run the setup wizard |
-| `--version` | Show version and exit |
+| `-V`, `--version` | Show version and exit |
+| `version` | Subcommand: show version (e.g. `converse version`) |
 
 ---
 
@@ -287,7 +277,7 @@ Run `converse` with no arguments to enter the REPL.
 
 - Type a sentence to translate and execute
 - `!command` runs a raw shell command directly, bypassing the LLM
-- Outside the REPL, use `-x "command"` for the same effect
+- Outside the REPL, `-x "command"` runs one directly; `-x` alone opens the raw shell REPL
 - `exit`, `quit`, or `q` to leave
 - Ctrl+D or Ctrl+C also exit
 
