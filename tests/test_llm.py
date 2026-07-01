@@ -48,7 +48,7 @@ class TestLLMClient:
 
     def test_complete_connection_error(self):
         from converse.llm import complete
-        config = LLMConfig(base_url="http://127.0.0.1:1/v1")
+        config = LLMConfig(base_url="http://127.0.0.1:1/v1", timeout=5)
         response = complete(config, [{"role": "user", "content": "test"}])
         assert "Error:" in response
 
@@ -64,7 +64,7 @@ class TestLLMClient:
 
     def test_stream_completion_connection_error(self):
         from converse.llm import stream_completion
-        config = LLMConfig(base_url="http://127.0.0.1:1/v1")
+        config = LLMConfig(base_url="http://127.0.0.1:1/v1", timeout=5)
         tokens = list(stream_completion(config, [
             {"role": "user", "content": "test"}
         ]))
