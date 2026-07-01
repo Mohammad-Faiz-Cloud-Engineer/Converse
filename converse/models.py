@@ -36,15 +36,29 @@ class LLMResponse:
             data = json.loads(text)
         except json.JSONDecodeError:
             return cls(error=f"Failed to parse LLM response as JSON", raw=raw)
+
+        if not isinstance(data, dict):
+            return cls(
+                error=f"Expected JSON object, got {type(data).__name__}",
+                raw=raw,
+            )
+
+        raw_requires_confirmation = data.get("requires_confirmation", False)
+        if isinstance(raw_requires_confirmation, bool):
+            requires_confirmation = raw_requires_confirmation
+        else:
+            requires_confirmation = str(raw_requires_confirmation).lower() in ("true", "1")
+
         try:
             risk = RiskLevel(data.get("risk_level", "low"))
         except ValueError:
             risk = RiskLevel.LOW
+
         return cls(
             command=data.get("command", ""),
             explanation=data.get("explanation", ""),
             risk_level=risk,
-            requires_confirmation=bool(data.get("requires_confirmation", False)),
+            requires_confirmation=requires_confirmation,
             error=data.get("error"),
             raw=raw,
         )

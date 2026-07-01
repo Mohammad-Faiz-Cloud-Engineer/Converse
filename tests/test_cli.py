@@ -4,7 +4,7 @@ from argparse import Namespace
 
 import pytest
 
-from converse.models import Config, LLMConfig, SafetyConfig, RiskLevel, Provider
+from converse.models import Config, LLMConfig, RiskLevel, Provider
 
 
 class TestLoadConfig:
@@ -13,7 +13,7 @@ class TestLoadConfig:
         args = Namespace(
             config=None, model=None, url=None, provider=None,
             api_key=None, temperature=None, max_tokens=None,
-            timeout=None, dry_run=False, yes=False, no_stream=False,
+            timeout=None, dry_run=False, yes=None, no_stream=False,
         )
         config = load_config(args)
         assert isinstance(config, Config)
@@ -55,7 +55,7 @@ class TestLoadConfig:
         args = Namespace(
             config=None, model=None, url=None, provider=None,
             api_key=None, temperature=None, max_tokens=None,
-            timeout=None, dry_run=False, yes=False, no_stream=False,
+            timeout=None, dry_run=False, yes=None, no_stream=False,
         )
         config = load_config(args)
         assert config.safety.require_confirmation == [RiskLevel.HIGH, RiskLevel.CRITICAL]
@@ -101,7 +101,7 @@ class TestProcessQuery:
     def test_llm_error_handling(self, capsys):
         from converse.cli import process_query
         config = Config(
-            llm=LLMConfig(base_url="http://127.0.0.1:1/v1"),
+            llm=LLMConfig(base_url="http://127.0.0.1:1/v1", timeout=5),
             dry_run=True,
         )
         process_query("list files", config)
@@ -111,6 +111,7 @@ class TestProcessQuery:
     def test_successful_query(self, mock_server, config, capsys):
         from converse.cli import process_query
         config.llm.base_url = f"http://127.0.0.1:{mock_server.port}/v1"
+        config.dry_run = True
         process_query("list files", config)
         captured = capsys.readouterr()
         assert "ls -la" in captured.out
@@ -123,7 +124,7 @@ class TestProcessQuery:
         captured = capsys.readouterr()
         assert "DRY RUN" in captured.out
 
-    def test_high_risk_shows_banner(self, mock_high_server, config, capsys):
+    def test_high_risk_shows_confirmation_label(self, mock_high_server, config, capsys):
         from converse.cli import process_query
         config.llm.base_url = f"http://127.0.0.1:{mock_high_server.port}/v1"
         config.auto_confirm = False

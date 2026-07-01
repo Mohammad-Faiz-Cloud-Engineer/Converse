@@ -110,6 +110,7 @@ def _save_config(config: Config) -> Path:
             "require_confirmation": [r.value for r in config.safety.require_confirmation],
             "blocked_commands": config.safety.blocked_commands,
         },
+        "auto_confirm": config.auto_confirm,
     }
 
     with open(config_path, "w") as f:
@@ -174,9 +175,13 @@ def run_setup_wizard() -> Config:
 
     elif provider == Provider.CUSTOM:
         url = _prompt("API base URL")
+        if not url:
+            console.print("[yellow]Warning:[/] No URL provided. Using default: http://localhost:11434/v1")
+            console.print("[yellow]You can change it later in the config file.[/]")
+        else:
+            llm_config.base_url = url
         api_key = _prompt("API key (optional)", default="")
         model = _prompt("Model name (optional)", default="")
-        llm_config.base_url = url
         llm_config.api_key = api_key
         if model:
             llm_config.model = model

@@ -144,6 +144,9 @@ def load_config(args: argparse.Namespace) -> Config:
                     if "blocked_commands" in safety_data:
                         config.safety.blocked_commands = list(safety_data["blocked_commands"])
 
+                    if "auto_confirm" in data:
+                        config.auto_confirm = bool(data["auto_confirm"])
+
                 print_info(f"Loaded config from {cp}")
                 break
             except Exception as e:
@@ -181,13 +184,14 @@ def load_config(args: argparse.Namespace) -> Config:
         config.llm.api_key = args.api_key
     if args.temperature is not None:
         config.llm.temperature = args.temperature
-    if args.max_tokens:
+    if args.max_tokens is not None:
         config.llm.max_tokens = args.max_tokens
-    if args.timeout:
+    if args.timeout is not None:
         config.llm.timeout = args.timeout
 
     config.dry_run = args.dry_run
-    config.auto_confirm = args.yes
+    if args.yes is not None:
+        config.auto_confirm = args.yes
     config.no_stream = args.no_stream
 
     return config
@@ -209,10 +213,8 @@ def process_query(query: str, config: Config) -> None:
     ) as live:
         collected: list[str] = []
         for token in translate(query, config.llm, stream=not config.no_stream):
-            if config.no_stream:
-                collected.append(token)
-            else:
-                collected.append(token)
+            collected.append(token)
+            if not config.no_stream:
                 current = "".join(collected)
                 display = current[-800:] if len(current) > 800 else current
                 live.update(
@@ -255,14 +257,14 @@ def process_query(query: str, config: Config) -> None:
     if response.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL):
         response.requires_confirmation = True
 
-    # Step 5: Display result
-    print_result(response)
-
-    # Step 6: Check blocked commands
+    # Step 5: Check blocked commands
     blocked = check_blocked(response.command, config.safety.blocked_commands)
     if blocked:
         print_error(blocked)
         return
+
+    # Step 6: Display result
+    print_result(response)
 
     if config.dry_run:
         print_info("[DRY RUN] Execution skipped.")
@@ -410,7 +412,7 @@ Environment variables:
     parser.add_argument("--max-tokens", type=int, help="Maximum response tokens (default: 500)")
     parser.add_argument("--timeout", type=int, help="Request timeout in seconds (default: 30)")
     parser.add_argument("-n", "--dry-run", action="store_true", help="Show translation without executing")
-    parser.add_argument("-y", "--yes", action="store_true", help="Auto-confirm all prompts (use with caution)")
+    parser.add_argument("-y", "--yes", action="store_true", default=None, help="Auto-confirm all prompts (use with caution)")
     parser.add_argument("--no-stream", action="store_true", help="Disable streaming output")
     parser.add_argument("-i", "--interactive", action="store_true", help="Force interactive mode")
     parser.add_argument("--setup", action="store_true", help="Run the interactive setup wizard")

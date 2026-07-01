@@ -118,7 +118,4 @@ def config(mock_server):
     )
 
 
-@pytest.fixture
-def safe_config(config):
-    config.dry_run = True
-    return config
+
