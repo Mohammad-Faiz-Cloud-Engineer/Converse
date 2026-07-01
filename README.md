@@ -14,9 +14,9 @@
 converse turns plain English into shell commands. Tell it what you want and it figures out the rest.
 
 ```bash
-converse "show me all files including hidden ones"
-converse "create a folder named project and move everything there"
-converse "find all Python files that were changed in the last week"
+python3 -m converse "show me all files including hidden ones"
+python3 -m converse "create a folder named project and move everything there"
+python3 -m converse "find all Python files that were changed in the last week"
 ```
 
 It works with local LLMs running on your machine through Ollama or LM Studio, and with any OpenAI compatible API. Commands stream back as they are generated so you see the translation happening in real time.
@@ -47,28 +47,20 @@ This means you get the flexibility of natural language with the guardrails of a 
 
 Requires **Python 3.10+** and **pip**.
 
-#### Linux / macOS
-
 ```bash
 git clone https://github.com/Akshay-Cloud-Engineer/converse.git
 cd converse
 pip install -e .
 ```
 
-#### Windows (PowerShell)
-
-```powershell
-git clone https://github.com/Akshay-Cloud-Engineer/converse.git
-cd converse
-pip install -e .
-```
+> **Note:** This project is not published on PyPI. You install it directly from the repository with `pip install -e .` (editable mode). After installation, you run it using `python3 -m converse` (Linux / macOS) or `python -m converse` (Windows). If your Python environment's scripts directory is on your PATH, you can also use the `converse` shortcut command.
 
 ### Setup (first run)
 
 Run the setup wizard to configure your LLM provider:
 
 ```bash
-converse --setup
+python3 -m converse --setup
 ```
 
 Use the arrow keys to select your provider, enter the details, and the configuration is saved. The wizard automatically starts on first run if no configuration is found.
@@ -85,7 +77,7 @@ ollama serve
 Or point it at any OpenAI compatible API:
 
 ```bash
-converse "list all running processes" --url https://api.openai.com/v1 --model gpt-4o --api-key $OPENAI_API_KEY
+python3 -m converse "list all running processes" --url https://api.openai.com/v1 --model gpt-4o --api-key $OPENAI_API_KEY
 ```
 
 ### Use it
@@ -93,28 +85,40 @@ converse "list all running processes" --url https://api.openai.com/v1 --model gp
 Single command mode:
 
 ```bash
-converse "create a folder named test"
+python3 -m converse "create a folder named test"
 ```
 
 Interactive mode:
 
 ```bash
-converse
-# or
-converse --interactive
+python3 -m converse
 ```
 
 Dry run to preview without executing:
 
 ```bash
-converse "delete everything in downloads" --dry-run
+python3 -m converse "delete everything in downloads" --dry-run
 ```
 
 Re-run the setup wizard anytime:
 
 ```bash
-converse --setup
+python3 -m converse --setup
 ```
+
+---
+
+### Windows
+
+On Windows, replace `python3` with `python`:
+
+```powershell
+python -m converse "show me all files"
+python -m converse --setup
+python -m converse --interactive
+```
+
+---
 
 ## Safety
 
@@ -171,12 +175,12 @@ export CONVERSE_API_KEY=sk-...
 CLI flags take priority over everything:
 
 ```bash
-converse "list running services" -m llama3.2 -u http://localhost:11434/v1 -p ollama
+python3 -m converse "list running services" -m llama3.2 -u http://localhost:11434/v1 -p ollama
 ```
 
 ## Interactive mode tips
 
-Run `converse` with no arguments to enter the REPL.
+Run `python3 -m converse` with no arguments to enter the REPL.
 
 Special commands inside the REPL:
 
