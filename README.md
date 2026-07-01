@@ -5,8 +5,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--2--Clause-blue" alt="License"></a>
   <a href="https://github.com/Akshay-Cloud-Engineer/converse/actions"><img src="https://img.shields.io/github/actions/workflow/status/Akshay-Cloud-Engineer/converse/ci.yml?branch=main&label=CI" alt="CI"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue" alt="Python">
-  <img src="https://img.shields.io/badge/tests-152-brightgreen" alt="Tests">
-  <img src="https://img.shields.io/badge/lines%20of%20code-1569-brightgreen" alt="Lines of Code">
+  <img src="https://img.shields.io/badge/tests-167-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/lines%20of%20code-1180-brightgreen" alt="Lines of Code">
 </p>
 
 Tell converse what you want in plain English and it figures out the shell command, shows you what it's going to run, and executes it.
@@ -34,7 +34,7 @@ You type a sentence. converse sends it to the language model along with your cur
 - **Dry-run mode** - preview without executing (`--dry-run` / `-n`)
 - **Interactive REPL** - keep asking without restarting (`converse` with no query)
 - **Raw shell passthrough** - `!command` in the REPL skips the LLM entirely
-- **Direct execution** - `--exec` / `-x` runs a raw command directly from the CLI, no LLM involved
+- **Direct execution** - `--exec` / `-x` runs a raw command directly, no LLM involved. With a command arg runs one-off; without, enters a raw shell REPL.
 - **Configurable** - YAML, JSON, environment variables, or CLI flags
 - **Setup wizard** - guided configuration with `--setup` (never auto-runs)
 - **Cross-platform** - Windows, Linux, macOS
@@ -183,10 +183,11 @@ converse "delete temporary files" --dry-run
 Direct execution (bypass the LLM entirely):
 
 ```bash
-converse -x "ls -la"
-converse -x "docker ps"
-converse -x "cat /etc/os-release"
+converse -x "ls -la"         # single command, then exit
+converse -x                  # raw shell REPL — keep typing commands
 ```
+
+In the raw REPL, the `!` prefix is optional. Every line runs directly.
 
 ---
 
@@ -270,7 +271,7 @@ Full flag reference:
 | `-t`, `--temperature` | Temperature (default: `0.1`) |
 | `--max-tokens` | Max response tokens (default: `500`) |
 | `--timeout` | Request timeout in seconds (default: `30`) |
-| `-x`, `--exec` | Execute a raw shell command directly, bypassing the LLM |
+| `-x`, `--exec` | Execute a raw shell command directly (bypasses LLM). With no argument, enters raw shell REPL. |
 | `-n`, `--dry-run` | Preview without executing |
 | `-y`, `--yes` | Auto-confirm all prompts |
 | `--no-stream` | Disable streaming output |
@@ -287,7 +288,7 @@ Run `converse` with no arguments to enter the REPL.
 
 - Type a sentence to translate and execute
 - `!command` runs a raw shell command directly, bypassing the LLM
-- Outside the REPL, use `-x "command"` for the same effect
+- Outside the REPL, `-x "command"` runs one directly; `-x` alone opens the raw shell REPL
 - `exit`, `quit`, or `q` to leave
 - Ctrl+D or Ctrl+C also exit
 
