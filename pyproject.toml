@@ -41,7 +41,7 @@ converse = "converse.cli:main"
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.0.0",
+    "pytest>=9.1.1",
 ]
 yaml = [
     "pyyaml>=6.0",
