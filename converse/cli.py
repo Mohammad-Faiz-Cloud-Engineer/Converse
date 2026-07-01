@@ -139,7 +139,11 @@ def load_config(args: argparse.Namespace) -> Config:
                         config.safety.blocked_commands = list(safety_data["blocked_commands"])
 
                     if "auto_confirm" in data:
-                        config.auto_confirm = bool(data["auto_confirm"])
+                        raw = data["auto_confirm"]
+                        if isinstance(raw, str):
+                            config.auto_confirm = raw.lower() in ("true", "1", "yes", "y")
+                        else:
+                            config.auto_confirm = bool(raw)
 
                 print_info(f"Loaded config from {cp}")
                 break
@@ -248,8 +252,7 @@ def process_query(query: str, config: Config) -> None:
     if risk_priority.get(local_risk, 0) > risk_priority.get(response.risk_level, 0):
         response.risk_level = local_risk
 
-    if response.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL):
-        response.requires_confirmation = True
+    response.requires_confirmation = response.risk_level in config.safety.require_confirmation
 
     # Step 5: Check blocked commands
     blocked = check_blocked(response.command, config.safety.blocked_commands)
