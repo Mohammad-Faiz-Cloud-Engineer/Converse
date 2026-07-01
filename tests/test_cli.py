@@ -1,4 +1,3 @@
-import os
 import sys
 from pathlib import Path
 from argparse import Namespace
@@ -143,7 +142,7 @@ class TestProcessQuery:
 
 
 class TestMain:
-    def test_version_flag(self):
+    def test_version_flag(self, capsys):
         from converse.cli import main
         from converse import __version__
         old_argv = sys.argv
@@ -154,3 +153,5 @@ class TestMain:
             pass
         finally:
             sys.argv = old_argv
+        captured = capsys.readouterr()
+        assert f"converse v{__version__}" in captured.out

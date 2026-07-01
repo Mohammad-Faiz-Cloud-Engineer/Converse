@@ -33,8 +33,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/converse"
-Repository = "https://github.com/yourusername/converse"
+Homepage = "https://github.com/Akshay-Cloud-Engineer/converse"
+Repository = "https://github.com/Akshay-Cloud-Engineer/converse"
 
 [project.scripts]
 converse = "converse.cli:main"

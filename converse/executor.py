@@ -9,7 +9,7 @@ from .models import RiskLevel
 
 _CRITICAL_PATTERNS = [
     re.compile(r) for r in [
-        r'^(reboot|shutdown|poweroff|halt|init\s+[06])\b',
+        r'\b(reboot|shutdown|poweroff|halt|init\s+[06])\b',
         r'systemctl\s+(reboot|poweroff|halt|shutdown)',
         r'apt(-get)?\s+(remove|purge|autoremove)',
         r'dpkg\s+(-r\b|--remove|--purge)',
@@ -24,13 +24,13 @@ _CRITICAL_PATTERNS = [
 
 _HIGH_PATTERNS = [
     re.compile(r) for r in [
-        r'^rm\s+(-rf\b|--recursive|-[a-z]*r[a-z]*\s+)',
-        r'^rm\s+(-[a-z]*f[a-z]*\s+[^\s])',
-        r'^kill\s+',
-        r'^pkill\s+',
-        r'^killall\s+',
-        r'^chmod\s+',
-        r'^chown\s+',
+        r'\brm\s+(-rf\b|--recursive|-[a-z]*r[a-z]*\s+)',
+        r'\brm\s+(-[a-z]*f[a-z]*\s+[^\s])',
+        r'\bkill\s+',
+        r'\bpkill\s+',
+        r'\bkillall\s+',
+        r'\bchmod\s+',
+        r'\bchown\s+',
         r'docker\s+(rm\b|rmi\b|system\s+prune)',
         r'git\s+reset\s+--hard',
         r'git\s+clean\s+-f[d]?',
@@ -42,21 +42,21 @@ _HIGH_PATTERNS = [
 
 _MEDIUM_PATTERNS = [
     re.compile(r) for r in [
-        r'^mkdir\s+',
-        r'^touch\s+',
-        r'^cp\s+',
-        r'^mv\s+',
-        r'^rm\s+',
-        r'^(nano|vim?|emacs|code)\s+',
-        r'^curl\s+',
-        r'^wget\s+',
-        r'^tar\s+',
-        r'^(gzip|gunzip|zip|unzip)\s+',
-        r'^(pip|npm|apt(-get)?|brew|pacman)\s+(install|uninstall|update|upgrade)\b',
-        r'^make\b',
-        r'^cmake\b',
-        r'^cargo\b',
-        r'^python[23]?\s+\S+\.py',
+        r'\bmkdir\s+',
+        r'\btouch\s+',
+        r'\bcp\s+',
+        r'\bmv\s+',
+        r'\brm\s+',
+        r'\b(nano|vim?|emacs|code)\s+',
+        r'\bcurl\s+',
+        r'\bwget\s+',
+        r'\btar\s+',
+        r'\b(gzip|gunzip|zip|unzip)\s+',
+        r'\b(pip|npm|apt(-get)?|brew|pacman)\s+(install|uninstall|update|upgrade)\b',
+        r'\bmake\b',
+        r'\bcmake\b',
+        r'\bcargo\b',
+        r'\bpython[23]?\s+\S+\.py',
     ]
 ]
 
@@ -120,6 +120,6 @@ def run_command(command: str) -> subprocess.CompletedProcess:
     return subprocess.run(
         command,
         shell=True,
-        capture_output=False,
+        capture_output=True,
         text=True,
     )

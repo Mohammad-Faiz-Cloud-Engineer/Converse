@@ -1,10 +1,9 @@
 # converse
 
 <p align="center">
-  <a href="https://github.com/yourusername/converse/actions/workflows/ci.yml"><img src="https://github.com/yourusername/converse/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/Akshay-Cloud-Engineer/converse/actions/workflows/ci.yml"><img src="https://github.com/Akshay-Cloud-Engineer/converse/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="#"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue" alt="Python"></a>
   <a href="#"><img src="https://img.shields.io/badge/tests-152-brightgreen" alt="Tests"></a>
-  <a href="#"><img src="https://img.shields.io/badge/code%20lines-1639-blue" alt="Lines of Code"></a>
   <br>
   <img src="https://img.shields.io/badge/dependencies-2-orange" alt="Dependencies">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
@@ -31,6 +30,7 @@ This means you get the flexibility of natural language with the guardrails of a 
 ## Features
 
 - Supports Ollama, LM Studio, and any OpenAI compatible endpoint
+- Setup wizard with interactive provider selection
 - Streaming responses show you the translation as it happens
 - Automatic risk detection flags destructive commands like reboots, file deletions, or system changes
 - Confirmation prompts stop you from accidentally running high risk operations
@@ -45,17 +45,33 @@ This means you get the flexibility of natural language with the guardrails of a 
 
 ### Install
 
-```bash
-pip install converse
-```
+Requires **Python 3.10+** and **pip**.
 
-Or install from source:
+#### Linux / macOS
 
 ```bash
-git clone https://github.com/yourusername/converse.git
+git clone https://github.com/Akshay-Cloud-Engineer/converse.git
 cd converse
 pip install -e .
 ```
+
+#### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/Akshay-Cloud-Engineer/converse.git
+cd converse
+pip install -e .
+```
+
+### Setup (first run)
+
+Run the setup wizard to configure your LLM provider:
+
+```bash
+converse --setup
+```
+
+Use the arrow keys to select your provider, enter the details, and the configuration is saved. The wizard automatically starts on first run if no configuration is found.
 
 ### Run an LLM
 
@@ -83,6 +99,8 @@ converse "create a folder named test"
 Interactive mode:
 
 ```bash
+converse
+# or
 converse --interactive
 ```
 
@@ -90,6 +108,12 @@ Dry run to preview without executing:
 
 ```bash
 converse "delete everything in downloads" --dry-run
+```
+
+Re-run the setup wizard anytime:
+
+```bash
+converse --setup
 ```
 
 ## Safety
@@ -115,6 +139,8 @@ converse looks for configuration files in this order:
 1. `./converse.yaml` or `./converse.json` (current directory)
 2. `~/.config/converse/config.yaml` or `~/.config/converse/config.json`
 3. `~/.converse.yaml` or `~/.converse.json`
+
+The setup wizard saves to `~/.config/converse/config.json`.
 
 Example YAML:
 
@@ -150,7 +176,7 @@ converse "list running services" -m llama3.2 -u http://localhost:11434/v1 -p oll
 
 ## Interactive mode tips
 
-Run `converse --interactive` or just `converse` with no arguments to enter the REPL.
+Run `converse` with no arguments to enter the REPL.
 
 Special commands inside the REPL:
 
@@ -174,12 +200,13 @@ Command history is saved to `~/.converse_history` and persists across sessions.
 
 ```text
 converse/
-  cli.py         CLI argument parsing, interactive REPL, main flow
-  models.py      Data structures for config, risk levels, and LLM responses
-  prompt.py      System prompt that instructs the LLM to output JSON
-  llm.py         HTTP client for streaming and non streaming LLM API calls
-  translator.py  Builds context aware messages and parses LLM JSON responses
-  executor.py    Pattern based risk detection and subprocess execution
+  cli.py            CLI argument parsing, interactive REPL, main flow
+  setup_wizard.py   Interactive setup wizard with arrow-key provider selection
+  models.py         Data structures for config, risk levels, and LLM responses
+  prompt.py         System prompt that instructs the LLM to output JSON
+  llm.py            HTTP client for streaming and non streaming LLM API calls
+  translator.py     Builds context aware messages and parses LLM JSON responses
+  executor.py       Pattern based risk detection and subprocess execution
 ```
 
 ## License

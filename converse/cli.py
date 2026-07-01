@@ -23,6 +23,19 @@ from .executor import determine_risk_level, check_blocked, run_command
 
 console = Console()
 
+CONFIG_SEARCH_PATHS = [
+    Path.cwd() / "converse.yaml",
+    Path.cwd() / "converse.json",
+    Path.home() / ".config" / "converse" / "config.yaml",
+    Path.home() / ".config" / "converse" / "config.json",
+    Path.home() / ".converse.yaml",
+    Path.home() / ".converse.json",
+]
+
+
+def config_exists() -> bool:
+    return any(p.exists() for p in CONFIG_SEARCH_PATHS)
+
 
 def print_info(msg: str) -> None:
     console.print(f"[bold blue]INFO:[/] {msg}")
@@ -83,15 +96,7 @@ def load_config(args: argparse.Namespace) -> Config:
     """Load configuration from file, CLI args, and environment."""
     config = Config()
 
-    # Config file search
-    config_paths = [
-        Path.cwd() / "converse.yaml",
-        Path.cwd() / "converse.json",
-        Path.home() / ".config" / "converse" / "config.yaml",
-        Path.home() / ".config" / "converse" / "config.json",
-        Path.home() / ".converse.yaml",
-        Path.home() / ".converse.json",
-    ]
+    config_paths = list(CONFIG_SEARCH_PATHS)
 
     if args.config:
         config_paths.insert(0, Path(args.config))
@@ -297,13 +302,15 @@ def process_query(query: str, config: Config) -> None:
         print_error(f"Execution failed: {e}")
         return
 
+    if result.stdout:
+        console.print(result.stdout)
+    if result.stderr:
+        console.print(f"[red]{result.stderr}[/]")
     console.print("─" * 60)
     if result.returncode == 0:
         print_success(f"Completed (exit code: {result.returncode})")
     else:
         print_error(f"Failed (exit code: {result.returncode})")
-        if result.stderr:
-            console.print(f"[red]{result.stderr}[/]")
 
 
 def interactive_mode(config: Config) -> None:
@@ -352,7 +359,11 @@ def interactive_mode(config: Config) -> None:
                 print_success(f"Executing raw: {raw_cmd}")
                 console.print("─" * 60)
                 try:
-                    run_command(raw_cmd)
+                    result = run_command(raw_cmd)
+                    if result.stdout:
+                        console.print(result.stdout)
+                    if result.stderr:
+                        console.print(f"[red]{result.stderr}[/]")
                 except Exception as e:
                     print_error(f"Execution failed: {e}")
                 console.print("─" * 60)
@@ -402,6 +413,7 @@ Environment variables:
     parser.add_argument("-y", "--yes", action="store_true", help="Auto-confirm all prompts (use with caution)")
     parser.add_argument("--no-stream", action="store_true", help="Disable streaming output")
     parser.add_argument("-i", "--interactive", action="store_true", help="Force interactive mode")
+    parser.add_argument("--setup", action="store_true", help="Run the interactive setup wizard")
     parser.add_argument("--version", action="store_true", help="Show version and exit")
 
     args = parser.parse_args()
@@ -411,10 +423,30 @@ Environment variables:
         print(f"converse v{__version__}")
         return
 
+    if args.setup:
+        from .setup_wizard import run_setup_wizard
+        try:
+            run_setup_wizard()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            print_info("Setup cancelled.")
+        return
+
     config = load_config(args)
 
-    # Determine if interactive:
     is_interactive = args.interactive or (not args.query and sys.stdin.isatty())
+
+    if is_interactive and not config_exists() and not args.config:
+        console.print()
+        console.print("[dim]No configuration found. Starting setup wizard...[/]")
+        console.print()
+        from .setup_wizard import run_setup_wizard
+        try:
+            run_setup_wizard()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            print_info("Setup cancelled. Using default configuration.")
+        config = load_config(args)
 
     if is_interactive:
         interactive_mode(config)
