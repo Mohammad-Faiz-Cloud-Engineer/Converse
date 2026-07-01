@@ -454,11 +454,16 @@ Environment variables:
     parser.add_argument("--setup", action="store_true", help="Run the interactive setup wizard")
     parser.add_argument("-x", "--exec", dest="exec_command", nargs="?", const="", default=None,
         help="Execute a raw shell command directly (bypasses LLM). Without a command, enters raw shell REPL.")
-    parser.add_argument("--version", action="store_true", help="Show version and exit")
+    parser.add_argument("--version", "-V", action="store_true", help="Show version and exit")
 
     args = parser.parse_args()
 
     if args.version:
+        from . import __version__
+        print(f"converse v{__version__}")
+        return
+
+    if args.query and args.query[0] == "version":
         from . import __version__
         print(f"converse v{__version__}")
         return
