@@ -12,7 +12,7 @@ authors = [{ name = "converse" }]
 keywords = ["shell", "cli", "natural-language", "llm", "ollama"]
 requires-python = ">=3.10"
 dependencies = [
-    "httpx>=0.28.0",
+    "httpx>=0.28.1",
     "rich>=15.0.0",
 ]
 
