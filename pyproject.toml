@@ -7,7 +7,7 @@ name = "converse"
 version = "0.1.0"
 description = "Natural language shell. Turn plain English into shell commands."
 readme = "README.md"
-license = { text = "MIT" }
+license = { text = "BSD-2-Clause" }
 authors = [{ name = "converse" }]
 keywords = ["shell", "cli", "natural-language", "llm", "ollama"]
 requires-python = ">=3.10"
@@ -21,7 +21,7 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -42,6 +42,9 @@ converse = "converse.cli:main"
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
+]
+yaml = [
+    "pyyaml>=6.0",
 ]
 
 [tool.setuptools.packages.find]

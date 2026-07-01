@@ -105,6 +105,8 @@ def check_blocked(command: str, blocked_list: list[str]) -> Optional[str]:
     """
     cmd_lower = command.lower()
     for blocked in blocked_list:
+        if not blocked:
+            continue
         bl = blocked.lower()
         if bl[0].isalnum() and bl[-1].isalnum():
             if re.search(r'\b' + re.escape(bl) + r'\b', cmd_lower):

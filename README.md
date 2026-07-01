@@ -215,4 +215,4 @@ converse/
 
 ## License
 
-MIT
+BSD 2-Clause

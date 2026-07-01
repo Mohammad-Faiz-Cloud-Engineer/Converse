@@ -209,10 +209,8 @@ def process_query(query: str, config: Config) -> None:
     ) as live:
         collected: list[str] = []
         for token in translate(query, config.llm, stream=not config.no_stream):
-            if config.no_stream:
-                collected.append(token)
-            else:
-                collected.append(token)
+            collected.append(token)
+            if not config.no_stream:
                 current = "".join(collected)
                 display = current[-800:] if len(current) > 800 else current
                 live.update(
