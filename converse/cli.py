@@ -12,8 +12,6 @@ from rich import box
 
 from .models import (
     Config,
-    LLMConfig,
-    SafetyConfig,
     LLMResponse,
     RiskLevel,
     Provider,
@@ -150,14 +148,14 @@ def load_config(args: argparse.Namespace) -> Config:
 
     # Environment variable overrides
     env_map = {
-        "CONVERSE_PROVIDER": ("llm", "provider", lambda v: Provider(v)),
-        "CONVERSE_MODEL": ("llm", "model", lambda v: v),
-        "CONVERSE_BASE_URL": ("llm", "base_url", lambda v: v),
-        "CONVERSE_API_KEY": ("llm", "api_key", lambda v: v),
-        "CONVERSE_TEMPERATURE": ("llm", "temperature", lambda v: float(v)),
-        "CONVERSE_MAX_TOKENS": ("llm", "max_tokens", lambda v: int(v)),
-        "CONVERSE_TIMEOUT": ("llm", "timeout", lambda v: int(v)),
-        "CONVERSE_BLOCKED": ("safety", "blocked_commands", lambda v: v.split(",")),
+        "CONVERSE_PROVIDER": ("llm", "provider", lambda v: Provider(v.strip())),
+        "CONVERSE_MODEL": ("llm", "model", lambda v: v.strip()),
+        "CONVERSE_BASE_URL": ("llm", "base_url", lambda v: v.strip()),
+        "CONVERSE_API_KEY": ("llm", "api_key", lambda v: v.strip()),
+        "CONVERSE_TEMPERATURE": ("llm", "temperature", lambda v: float(v.strip())),
+        "CONVERSE_MAX_TOKENS": ("llm", "max_tokens", lambda v: int(v.strip())),
+        "CONVERSE_TIMEOUT": ("llm", "timeout", lambda v: int(v.strip())),
+        "CONVERSE_BLOCKED": ("safety", "blocked_commands", lambda v: [x.strip() for x in v.split(",")]),
     }
 
     for env_key, (section, attr, transform) in env_map.items():
@@ -267,10 +265,7 @@ def process_query(query: str, config: Config) -> None:
         return
 
     # Step 7: Confirmation
-    needs_confirm = (
-        response.requires_confirmation
-        and response.risk_level in config.safety.require_confirmation
-    )
+    needs_confirm = response.risk_level in config.safety.require_confirmation
 
     if needs_confirm and config.auto_confirm:
         print_warning("Auto-confirm enabled. Executing without confirmation prompt.")

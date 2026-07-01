@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--2--Clause-blue" alt="License"></a>
-  <a href="https://github.com/Mohammad-Faiz-Cloud-Engineer/Converse/actions"><img src="https://img.shields.io/github/actions/workflow/status/Mohammad-Faiz-Cloud-Engineer/Converse/ci.yml?branch=main&label=CI" alt="CI"></a>
+  <a href="https://github.com/Akshay-Cloud-Engineer/converse/actions"><img src="https://img.shields.io/github/actions/workflow/status/Akshay-Cloud-Engineer/converse/ci.yml?branch=main&label=CI" alt="CI"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue" alt="Python">
   <img src="https://img.shields.io/badge/tests-152-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/lines%20of%20code-1569-brightgreen" alt="Lines of Code">
@@ -46,7 +46,7 @@ You type a sentence. converse sends it to the language model along with your cur
 Install directly from GitHub (no clone needed):
 
 ```bash
-pip install git+https://github.com/Mohammad-Faiz-Cloud-Engineer/Converse.git
+pip install git+https://github.com/Akshay-Cloud-Engineer/converse.git
 ```
 
 After this, `converse` should be on your PATH. If it isn't, use the module form:
@@ -64,8 +64,8 @@ python3 -m converse "query"
 Clone the repo and install for development:
 
 ```bash
-git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Converse.git
-cd Converse
+git clone https://github.com/Akshay-Cloud-Engineer/converse.git
+cd converse
 pip install -e .
 ```
 
@@ -76,8 +76,8 @@ Editable mode (`-e`) means changes to the source code take effect immediately wi
 Clone and run directly through `python -m`:
 
 ```bash
-git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Converse.git
-cd Converse
+git clone https://github.com/Akshay-Cloud-Engineer/converse.git
+cd converse
 ```
 
 Then install the dependencies and use the module form:

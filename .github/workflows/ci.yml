@@ -61,4 +61,5 @@ jobs:
           python -m py_compile converse/translator.py
           python -m py_compile converse/executor.py
           python -m py_compile converse/cli.py
+          python -m py_compile converse/setup_wizard.py
           echo "All files compile cleanly"
