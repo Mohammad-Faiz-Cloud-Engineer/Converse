@@ -102,7 +102,6 @@ class TestInteractiveSelect:
     def test_fallback_to_numbered_on_no_termios(self, monkeypatch):
         from converse.setup_wizard import _interactive_select, _numbered_select
 
-        original_has = False
         monkeypatch.setattr("converse.setup_wizard.HAS_TERMIOS", False)
         monkeypatch.setattr("converse.setup_wizard._numbered_select", lambda opts, prompt="": "fallback_ok")
 

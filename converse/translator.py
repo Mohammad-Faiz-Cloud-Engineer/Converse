@@ -32,7 +32,7 @@ def translate(
     """Translate a natural language query to a shell command.
 
     If stream=True, yields response tokens as they arrive.
-    The final yielded value is the complete response text.
+    If stream=False, yields the complete response as a single token.
     """
     messages = _build_messages(query)
 

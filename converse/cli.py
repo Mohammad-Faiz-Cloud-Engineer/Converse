@@ -21,6 +21,14 @@ from .executor import determine_risk_level, check_blocked, run_command
 
 console = Console()
 
+_RISK_COLORS: dict[str, str] = {
+    "low": "green",
+    "medium": "yellow",
+    "high": "red",
+    "critical": "bold red",
+}
+
+
 CONFIG_SEARCH_PATHS = [
     Path.cwd() / "converse.yaml",
     Path.cwd() / "converse.json",
@@ -48,12 +56,7 @@ def print_error(msg: str) -> None:
 
 
 def print_risk_banner(command: str, explanation: str, risk: str) -> None:
-    color = {
-        "low": "green",
-        "medium": "yellow",
-        "high": "red",
-        "critical": "bold red",
-    }.get(risk, "white")
+    color = _RISK_COLORS.get(risk, "white")
 
     panel = Panel(
         f"[{color}]{explanation}[/]\n\n"
@@ -67,12 +70,7 @@ def print_risk_banner(command: str, explanation: str, risk: str) -> None:
 
 
 def print_result(response: LLMResponse) -> None:
-    color = {
-        "low": "green",
-        "medium": "yellow",
-        "high": "red",
-        "critical": "bold red",
-    }.get(response.risk_level.value, "white")
+    color = _RISK_COLORS.get(response.risk_level.value, "white")
 
     panel = Panel(
         f"Command:  [bold white]{response.command}[/]\n"
@@ -268,7 +266,7 @@ def process_query(query: str, config: Config) -> None:
         return
 
     # Step 7: Confirmation
-    needs_confirm = response.risk_level in config.safety.require_confirmation
+    needs_confirm = response.requires_confirmation
 
     if needs_confirm and config.auto_confirm:
         print_warning("Auto-confirm enabled. Executing without confirmation prompt.")
