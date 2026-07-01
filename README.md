@@ -21,22 +21,22 @@ Works with local LLMs (Ollama, LM Studio) or any OpenAI-compatible API. Commands
 
 ## How it works
 
-You type a sentence. converse sends it to the language model along with your current directory and operating system, so the model has context for paths and platform-specific commands. The model replies with structured JSON containing the shell command, an explanation, and a risk level. converse runs its own safety checks on top — pattern matching catches destructive operations even if the model underestimates the risk. If everything looks good and you confirm (when needed), it runs the command.
+You type a sentence. converse sends it to the language model along with your current directory and operating system, so the model has context for paths and platform-specific commands. The model replies with structured JSON containing the shell command, an explanation, and a risk level. converse runs its own safety checks on top. Pattern matching catches destructive operations even if the model underestimates the risk. If everything looks good and you confirm (when needed), it runs the command.
 
 ## Features
 
-- **Multiple providers** — Ollama, LM Studio, OpenAI, or any custom endpoint
-- **Streaming** — see the command being built character by character
-- **Two-layer safety** — LLM risk assessment + local pattern matching; the stricter wins
-- **Confirmation prompts** — high-risk commands ask before executing
-- **Risk levels** — Low, Medium, High, Critical with configurable thresholds
-- **Blocked commands** — blacklist specific commands so they can never run
-- **Dry-run mode** — preview without executing (`--dry-run` / `-n`)
-- **Interactive REPL** — keep asking without restarting (`converse` with no query)
-- **Raw shell passthrough** — `!command` in the REPL skips the LLM entirely
-- **Configurable** — YAML, JSON, environment variables, or CLI flags
-- **Setup wizard** — interactive configuration on first run or with `--setup`
-- **Cross-platform** — Windows, Linux, macOS
+- **Multiple providers** - Ollama, LM Studio, OpenAI, or any custom endpoint
+- **Streaming** - see the command being built character by character
+- **Two-layer safety** - LLM risk assessment + local pattern matching; the stricter wins
+- **Confirmation prompts** - high-risk commands ask before executing
+- **Risk levels** - Low, Medium, High, Critical with configurable thresholds
+- **Blocked commands** - blacklist specific commands so they can never run
+- **Dry-run mode** - preview without executing (`--dry-run` / `-n`)
+- **Interactive REPL** - keep asking without restarting (`converse` with no query)
+- **Raw shell passthrough** - `!command` in the REPL skips the LLM entirely
+- **Configurable** - YAML, JSON, environment variables, or CLI flags
+- **Setup wizard** - interactive configuration on first run or with `--setup`
+- **Cross-platform** - Windows, Linux, macOS
 
 ## Installation
 
@@ -116,7 +116,7 @@ ollama pull llama3.2
 ollama serve
 ```
 
-Or use any OpenAI-compatible provider — LM Studio, OpenAI, or a custom endpoint.
+Or use any OpenAI-compatible provider: LM Studio, OpenAI, or a custom endpoint.
 
 ### 2. Run the setup wizard
 
@@ -155,7 +155,7 @@ converse
 
 Without arguments, converse drops into interactive mode. Type natural language queries, `!raw_command` to run shell commands directly, or `exit` / `quit` to leave.
 
-Dry run — see what would run without actually executing:
+Dry run: see what would run without actually executing:
 
 ```bash
 converse "delete temporary files" --dry-run
@@ -167,18 +167,18 @@ converse "delete temporary files" --dry-run
 
 Every command passes through two layers of risk assessment:
 
-1. **LLM assessment** — the model classifies risk as Low, Medium, High, or Critical
-2. **Local pattern matching** — converse scans the command for dangerous patterns and can override the model's assessment to a higher level
+1. **LLM assessment** - the model classifies risk as Low, Medium, High, or Critical
+2. **Local pattern matching** - converse scans the command for dangerous patterns and can override the model's assessment to a higher level
 
 The stricter assessment wins.
 
-**Low** — `ls`, `pwd`, `echo`, `cat`, `grep`, `find`, `df`, `ps`, `git status`, read-only operations. No confirmation needed.
+**Low** - `ls`, `pwd`, `echo`, `cat`, `grep`, `find`, `df`, `ps`, `git status`, read-only operations. No confirmation needed.
 
-**Medium** — `mkdir`, `touch`, `cp`, `mv`, `curl`, `wget`, `pip install`, package updates, non-destructive operations. Shown without confirmation.
+**Medium** - `mkdir`, `touch`, `cp`, `mv`, `curl`, `wget`, `pip install`, package updates, non-destructive operations. Shown without confirmation.
 
-**High** — `rm`, `rm -rf`, `kill`, `chmod`, `chown`, `git reset --hard`, `git push --force`, operations that modify or destroy data. Confirmation required by default.
+**High** - `rm`, `rm -rf`, `kill`, `chmod`, `chown`, `git reset --hard`, `git push --force`, operations that modify or destroy data. Confirmation required by default.
 
-**Critical** — `reboot`, `shutdown`, `dd`, `mkfs`, `fdisk`, `apt remove`, system-altering commands. Confirmation required, warning styled prominently.
+**Critical** - `reboot`, `shutdown`, `dd`, `mkfs`, `fdisk`, `apt remove`, system-altering commands. Confirmation required, warning styled prominently.
 
 You can configure which levels prompt for confirmation through `require_confirmation` in your config file. Use `--yes` to skip all prompts (careful with this one).
 
@@ -226,7 +226,7 @@ export CONVERSE_BLOCKED="rm,reboot,shutdown"
 
 ### CLI flags
 
-CLI flags override everything — config file and environment variables both:
+CLI flags override everything: config file and environment variables both:
 
 ```bash
 converse "list running services" -m llama3.2 -u http://localhost:11434/v1 -p ollama -n
