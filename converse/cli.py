@@ -386,9 +386,10 @@ Examples:
   converse -x "docker ps"
   echo "restart my computer" | converse -n
 
-Configuration file (searched in order):
-  ./converse.yaml, ~/.config/converse/config.yaml, ~/.converse.yaml
-  Same paths with .json extension.
+Configuration file (searched in order, per-directory yaml before json):
+  ./converse.yaml, ./converse.json
+  ~/.config/converse/config.yaml, ~/.config/converse/config.json
+  ~/.converse.yaml, ~/.converse.json
 
 Environment variables:
     CONVERSE_MODEL, CONVERSE_BASE_URL, CONVERSE_API_KEY, CONVERSE_PROVIDER,
