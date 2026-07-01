@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "converse"
+version = "0.1.0"
+description = "Natural language shell. Turn plain English into shell commands."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "converse" }]
+keywords = ["shell", "cli", "natural-language", "llm", "ollama"]
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.28.0",
+    "rich>=15.0.0",
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: System :: Shells",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/converse"
+Repository = "https://github.com/yourusername/converse"
+
+[project.scripts]
+converse = "converse.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["converse*"]
