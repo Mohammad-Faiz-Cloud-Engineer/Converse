@@ -1,7 +1,7 @@
 # Converse
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.1.3-blue" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--2--Clause-blue" alt="License"></a>
   <a href="https://github.com/Akshay-Cloud-Engineer/converse/actions"><img src="https://img.shields.io/github/actions/workflow/status/Akshay-Cloud-Engineer/converse/ci.yml?branch=main&label=CI" alt="CI"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue" alt="Python">
